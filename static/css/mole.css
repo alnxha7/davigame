@@ -1,0 +1,39 @@
+body {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+  }
+  
+  h1 {
+    margin: 20px 0;
+  }
+  
+  #game-status {
+    font-size: 1.2rem;
+    margin: 10px 0;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(5, 100px);
+    grid-gap: 10px;
+    justify-content: center;
+    margin: 20px auto;
+  }
+  
+  .hole {
+    width: 100px;
+    height: 100px;
+    background-color: #666;
+    border: 2px solid #333;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  
+  .hole.active {
+    background-color: #ffcc00;
+  }
+  

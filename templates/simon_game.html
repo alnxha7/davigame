@@ -1,0 +1,163 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Simon</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+</head>
+
+<body>
+  <h1 id="level-title">Press A Key to Start</h1>
+  <div class="container">
+    <div class="row">
+
+      <div type="button" id="green" class="btn green">
+
+      </div>
+
+      <div type="button" id="red" class="btn red">
+
+      </div>
+    </div>
+
+    <div class="row">
+
+      <div type="button" id="yellow" class="btn yellow">
+
+      </div>
+      <div type="button" id="blue" class="btn blue">
+
+      </div>
+
+    </div>
+
+  </div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+ <script>
+    var buttonColours = ["red", "blue", "green", "yellow"];
+
+var gamePattern = [];
+userClickedPattern = [];
+
+var started = false;
+var level = 0;
+
+$(document).keydown(function () {
+
+  if (!started) {
+    $("#level-title").text("Level " + level);
+    nextSequence();
+    started = true;
+  }
+
+});
+
+$(".btn").click(function() {
+
+  var userChosenColour = $(this).attr("id");
+  userClickedPattern.push(userChosenColour);
+
+  playSound(userChosenColour);
+  animatePress(userChosenColour);
+
+  checkAnswer(userClickedPattern.length-1);
+});
+
+function checkAnswer(currentLevel) {
+    if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
+        console.log("Success");
+
+        if (userClickedPattern.length === gamePattern.length) {
+            if (level === 5) { // Replace 5 with your desired winning level
+                gameWin();
+            } else {
+                setTimeout(function () {
+                    nextSequence();
+                }, 1000);
+            }
+        }
+    } else {
+        console.log("Wrong");
+
+        playSound("wrong");
+        $("body").addClass("game-over");
+        setTimeout(function () {
+            $("body").removeClass("game-over");
+        }, 200);
+
+        $("#level-title").text("Game Over, Press Any Key to Restart");
+
+        setTimeout(function () {
+            window.location.href = "{% url 'games' %}";
+        }, 1000); // Allow time for the user to see the game over message
+
+        startOver();
+    }
+}
+
+function nextSequence() {
+
+  userClickedPattern = [];
+
+  level++;
+  $("#level-title").text("Level " + level);
+
+
+  var randomNumber = Math.floor(Math.random() * 4);
+
+  var randomChosenColour = buttonColours[randomNumber];
+
+  gamePattern.push(randomChosenColour);
+
+  $("#" + randomChosenColour).fadeIn(100).fadeOut(100).fadeIn(100);
+
+  playSound(randomChosenColour);
+}
+
+function playSound(name) {
+
+  var audioPath = "{% static 'sounds/' %}" + name + ".mp3";
+  var audio = new Audio(audioPath);
+  audio.play();
+}
+
+function animatePress(currentColour) {
+
+  $("#" + currentColour).addClass("pressed");
+  setTimeout(function () {
+    $("#" + currentColour).removeClass("pressed");
+  },100);
+}
+
+function startOver() {
+
+  level = 0;
+  gamePattern = [];
+  started = false;
+
+}
+
+function gameWin() {
+  console.log("game-win");
+
+  playSound("wrong");
+  $("body").addClass("game-win");
+  $("#level-title").text("Congratulations You Win.....!!!");
+
+  setTimeout(function () {
+    $("body").removeClass("game-win");
+    window.location.href = "{% url 'simon_win' %}";
+  }, 800); // Allow enough time to show the green background.
+
+  startOver();
+}
+
+ </script>
+
+</body>
+
+</html>

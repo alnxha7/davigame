@@ -1,0 +1,222 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zxx">
+<head>
+	<title>EndGam - Gaming Magazine Template</title>
+	<meta charset="UTF-8">
+	<meta name="description" content="EndGam Gaming Magazine Template">
+	<meta name="keywords" content="endGam,gGaming, magazine, html">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- Favicon -->
+	<link href="{% static 'img/favicon.ico' %}" rel="shortcut icon"/>
+
+	<!-- Google Font -->
+	<link href="https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i,700,700i,900,900i" rel="stylesheet">
+
+
+	<!-- Stylesheets -->
+	<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+	<link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}"/>
+	<link rel="stylesheet" href="{% static 'css/slicknav.min.css' %}"/>
+	<link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}"/>
+	<link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}"/>
+	<link rel="stylesheet" href="{% static 'css/animate.css' %}"/>
+
+	<!-- Main Stylesheets -->
+	<link rel="stylesheet" href="{% static 'css/style.css' %}"/>
+    <style>
+        .form-label {
+            color: white;
+        }
+        .error {
+            color: red;
+            animation: fadeOut 10s forwards; /* Trigger fade-out animation */
+        }
+    
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                visibility: hidden; /* Ensures it doesn't take up space after fading out */
+            }
+        }
+    </style>
+
+
+	<!--[if lt IE 9]>
+		  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+	  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+	<![endif]-->
+
+</head>
+<body>
+	<!-- Page Preloder -->
+	<div id="preloder">
+		<div class="loader"></div>
+	</div>
+
+	<!-- Header section -->
+	<header class="header-section">
+		<div class="header-warp">
+            {% if error %}
+                    <h5 class="error">{{ error }}</h5>
+                {% endif %}
+			<div class="header-social d-flex justify-content-end">
+                <p>Your Davitokens: </p>
+				<a href="#" style="color: red;">{{ request.user.davitokens }}&nbsp;<i class="fa fa-bitcoin"></i></a>
+			</div>
+			<div class="header-bar-warp d-flex">
+				<!-- site logo -->
+				<a href="" class="site-logo">
+					<img src="{% static 'img/logo.png' %}" alt="">
+				</a>
+				<nav class="top-nav-area w-100">
+					<div class="user-panel">
+						<a href="{% url 'logout' %}">Logout</a>
+					</div>
+					<!-- Menu -->
+					<ul class="main-menu primary-menu">
+						<li><a href="{% url 'user_index' %}">Home</a></li>
+						<li><a href="#news">News</a></li>
+						<li><a href="#promo">Promo</a></li>
+						<li><a href="{% url 'purchase_davis' %}">Buy Davis</a></li>
+						<li><a href="{% url 'games' %}">Games</a></li>
+						<li><a href="{% url 'user_payment' %}">Payments</a></li>
+						<li><a href="{% url 'user_wallet' %}">Wallet</a></li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+	</header>
+	<!-- Header section end -->
+
+
+	<!-- Page top section -->
+	<section class="page-top-section set-bg" data-setbg="{% static 'img/page-top-bg/1.jpg' %}">
+		<div class="page-info">
+			<h2>Convert Davitokens To Wallet</h2>
+			<div class="site-breadcrumb">
+				<a href="{% url 'user_index' %}">Home</a>  /
+				<span>Wallet</span>
+			</div>
+		</div>
+	</section>
+	<!-- Page top end-->
+
+
+
+
+	<!-- Review section -->
+	<section class="games-section">
+		<div class="container">
+            <div class="row">
+                <div class="col-xl-7 col-lg-8 col-md-7">
+					<div class="row">
+						<div class="col-lg-4 col-md-6">
+
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label class="form-label" for="davitokens">Select Davitokens:</label>
+                                    <select id="davitokens" name="davitokens" class="form-control" required>
+                                        <option value="">--Select Davitokens--</option>
+                                        {% for conversion in conversions %}
+                                            <option value="{{ conversion.davitokens }}" data-amount="{{ conversion.amount }}">
+                                                {{ conversion.davitokens }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                    
+                                <div class="form-group">
+                                    <label class="form-label" for="amount">Amount (INR):</label>
+                                    <input type="text" id="amount" name="amount" class="form-control" required readonly>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="account_number">Account Number </label>
+                                    <input type="number" id="account_number" placeholder="Enter your Account Number" name="account_number" class="form-control" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="account_number">IFSC Code </label>
+                                    <input type="text" id="ifsc" placeholder="Enter your IFSC Code" name="ifsc" class="form-control" required>
+                                </div>
+                    
+                                <button type="submit" class="btn btn-success">Convert</button>
+                            </form>
+
+		                </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-lg-4 col-md-5 sidebar game-page-sideber">
+					<div id="stickySidebar">
+						<div class="widget-item">
+							<div class="categories-widget">
+								<h4 class="widget-title">Wallet Amount</h4>
+                                <ul>
+								    <h2 style="color: white;"> {{ request.user.wallet_amount }} ₹</h2>
+                                </ul>
+							</div>
+						</div>
+					</div>
+				</div>
+            </div>
+        </div>
+	</section>
+	<!-- Review section end-->
+
+	<!-- Footer section -->
+	<footer class="footer-section">
+		<div class="container">
+			<div class="footer-left-pic">
+				<img src="{% static 'img/footer-left-pic.png' %}" alt="">
+			</div>
+			<div class="footer-right-pic">
+				<img src="{% static 'img/footer-right-pic.png' %}" alt="">
+			</div>
+			<a href="#" class="footer-logo">
+				<img src="{% static 'img/logo.png' %}" alt="">
+			</a>
+			<ul class="main-menu footer-menu">
+				<li><a href="">Home</a></li>
+				<li><a href="">Games</a></li>
+				<li><a href="">Reviews</a></li>
+				<li><a href="">News</a></li>
+				<li><a href="">Contact</a></li>
+			</ul>
+			<div class="footer-social d-flex justify-content-center">
+				<a href="#"><i class="fa fa-pinterest"></i></a>
+				<a href="#"><i class="fa fa-facebook"></i></a>
+				<a href="#"><i class="fa fa-twitter"></i></a>
+				<a href="#"><i class="fa fa-dribbble"></i></a>
+				<a href="#"><i class="fa fa-behance"></i></a>
+			</div>
+			<div class="copyright"><a href="">Colorlib</a> 2018 @ All rights reserved</div>
+		</div>
+	</footer>
+	<!-- Footer section end -->
+
+
+	<!--====== Javascripts & Jquery ======-->
+	<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+	<script src="{% static 'js/bootstrap.min.js' %}"></script>
+	<script src="{% static 'js/jquery.slicknav.min.js' %}"></script>
+	<script src="{% static 'js/owl.carousel.min.js' %}"></script>
+	<script src="{% static 'js/jquery.sticky-sidebar.min.js' %}"></script>
+	<script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+	<script src="{% static 'js/main.js' %}"></script>
+    <script>
+        document.getElementById('davitokens').addEventListener('change', function () {
+            const selectedOption = this.options[this.selectedIndex];
+            const amount = selectedOption.getAttribute('data-amount');
+            document.getElementById('amount').value = amount;
+        });
+    </script>
+
+	</body>
+</html>
+

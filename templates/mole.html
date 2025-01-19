@@ -1,0 +1,176 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whack-a-Mole</title>
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+  <link rel="stylesheet" href="{% static 'css/mole.css' %}">
+</head>
+<body>
+  <h1>Whack-a-Mole!</h1>
+  <p id="game-status">Press "Start Game" to begin!</p>
+  <div class="grid">
+    <div class="hole" id="hole1"></div>
+    <div class="hole" id="hole2"></div>
+    <div class="hole" id="hole3"></div>
+    <div class="hole" id="hole4"></div>
+    <div class="hole" id="hole5"></div>
+    <div class="hole" id="hole6"></div>
+    <div class="hole" id="hole7"></div>
+    <div class="hole" id="hole8"></div>
+    <div class="hole" id="hole9"></div>
+    <div class="hole" id="hole10"></div>
+    <div class="hole" id="hole11"></div>
+    <div class="hole" id="hole12"></div>
+    <div class="hole" id="hole13"></div>
+    <div class="hole" id="hole14"></div>
+    <div class="hole" id="hole15"></div>
+    <div class="hole" id="hole16"></div>
+    <div class="hole" id="hole17"></div>
+    <div class="hole" id="hole18"></div>
+    <div class="hole" id="hole19"></div>
+    <div class="hole" id="hole20"></div>
+    <div class="hole" id="hole21"></div>
+    <div class="hole" id="hole22"></div>
+    <div class="hole" id="hole23"></div>
+    <div class="hole" id="hole24"></div>
+    <div class="hole" id="hole25"></div>
+  </div><br>
+  <button type="submit" class="btn btn-success" id="start-btn">Start Game</button>
+</body>
+<script>
+
+const holes = document.querySelectorAll('.hole');
+const startBtn = document.getElementById('start-btn');
+const gameStatus = document.getElementById('game-status');
+
+let lastHole;
+let timeUp = false;
+let gameActive = false;
+let moleSpeed = 1000; // Initial mole speed (in milliseconds)
+let molesHit = 0; // Track number of moles hit
+const targetHits = 5; // Set the target number of moles to hit to win the game
+
+// Function to pick a random hole
+function randomHole(holes) {
+  const index = Math.floor(Math.random() * holes.length);
+  const hole = holes[index];
+  if (hole === lastHole) {
+    return randomHole(holes); // Prevent the same hole consecutively
+  }
+  lastHole = hole;
+  return hole;
+}
+
+// Play sound for active mole
+function playSoundActive() {
+  const audio = new Audio("{% static 'sounds/red.mp3' %}");
+  audio.play();
+}
+
+// Play sound for clicked mole
+function playSoundClicked() {
+  const audio = new Audio("{% static 'sounds/blue.mp3' %}");
+  audio.play();
+}
+
+// Play sound for win
+function playSoundWin() {
+  const audio = new Audio("{% static 'sounds/wrong.mp3' %}");
+  audio.play();
+}
+
+// Play sound for lose
+function playSoundLose() {
+  const audio = new Audio("{% static 'sounds/wrong.mp3' %}");
+  audio.play();
+}
+
+// Show a mole in a random hole
+function showMole() {
+  const hole = randomHole(holes);
+  hole.classList.add('active');
+  playSoundActive(); // Play sound when mole appears
+
+  // Mole remains active for a specific duration
+  setTimeout(() => {
+    if (hole.classList.contains('active')) {
+      // If the mole is still active, it means the player missed it
+      endGame(false); // Player loses
+    } else if (!timeUp) {
+      // If the player clicked the mole, continue the game
+      showMole();
+    }
+  }, moleSpeed);
+}
+
+// Handle mole clicks
+holes.forEach((hole) => {
+  hole.addEventListener('click', () => {
+    if (!gameActive) return;
+
+    if (hole.classList.contains('active')) {
+      // Correct hit
+      hole.classList.remove('active');
+      playSoundClicked(); // Play sound when mole is clicked
+      molesHit++;
+
+      // Check if the player has hit the target number of moles
+      if (molesHit >= targetHits) {
+        endGame(true); // Player wins
+      } else {
+        // Increase speed slightly as the player progresses
+        moleSpeed = Math.max(400, moleSpeed - 50); // Minimum speed is 400ms
+      }
+    }
+  });
+});
+
+// Start the game
+function startGame() {
+  // Reset moles hit counter and game status
+  molesHit = 0;
+
+  // Remove the 'active' class from all holes at the start of the game
+  holes.forEach(hole => hole.classList.remove('active'));
+
+  moleSpeed = 1000; // Reset mole speed at the start
+  timeUp = false;
+  gameActive = true;
+  gameStatus.textContent = "Game in progress...";
+  document.body.style.backgroundColor = "#f4f4f4"; // Reset background
+  showMole();
+}
+
+// End the game
+function endGame(win) {
+  timeUp = true;
+  gameActive = false;
+
+  // Remove the 'active' class from all holes when the game ends
+  holes.forEach(hole => hole.classList.remove('active'));
+
+  if (win) {
+    gameStatus.textContent = "You win! Press 'Start Game' to play again.";
+    document.body.style.backgroundColor = "green"; // Green background for win
+    playSoundWin(); // Play win sound
+    setTimeout(function () {
+      window.location.href = "{% url 'mole_win' %}";
+    }, 1000);
+  } else {
+    gameStatus.textContent = "You lose! Press 'Start Game' to try again.";
+    document.body.style.backgroundColor = "red"; // Red background for lose
+    playSoundLose(); // Play lose sound
+    setTimeout(function () {
+      window.location.href = "{% url 'games' %}";
+    }, 1000);
+  }
+}
+
+// Start button listener
+startBtn.addEventListener('click', startGame);
+
+</script>
+</html>
