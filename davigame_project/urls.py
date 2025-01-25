@@ -35,7 +35,9 @@ urlpatterns = [
     path('purchase_davis', views.purchase_davis, name='purchase_davis'),    
     path('davi_payment/<int:token_id>', views.davi_payment, name='davi_payment'),
     path('delete_token/<int:token_id>', views.delete_token, name='delete_token'),
+    
     path('success', views.success, name='success'),
+    path('cancel', views.cancel, name='cancel'),
 
     path('simon_game', views.simon_game, name='simon_game'),
     path('games', views.games, name='games'),

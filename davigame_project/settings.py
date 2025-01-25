@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
-from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -136,6 +135,3 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'davigame.User'
-
-STRIPE_PUBLISHABLE_KEY = 'pk_test_51QiEXDSHJUM6Nx6p7iXqtXdiJRCDlgn0D4BvzRfW565QSP9TRfXGMGGHfGSkvdQc2aGTCQkybNGIvvdQgwuAbCII00KdhAL4QL'
-STRIPE_SECRET_KEY = 'sk_test_51QiEXDSHJUM6Nx6pBmX76nEImbWj6aHF2Qm2XxqNsCBKXAkX11hEeDJ9JNTmJO9EX0zL117XZXV1or15m7J6qRpw006vmXlQYd'

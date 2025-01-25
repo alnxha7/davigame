@@ -21,15 +21,14 @@ class DaviPayment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.IntegerField(null=True, blank=True)
     davitokens = models.IntegerField(blank=True, null=True)
-    card_number = models.IntegerField()
-    cvv = models.IntegerField()
+    transaction_id = models.CharField(max_length=365)
     date = models.DateTimeField()
 
 class Wallet(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.IntegerField(null=True, blank=True)
     davitokens = models.IntegerField(blank=True, null=True)
-    account_number = models.IntegerField()
+    account_number = models.CharField(default='123456789', max_length=100)
     ifsc_code = models.CharField(max_length=15)
     date = models.DateTimeField()
 

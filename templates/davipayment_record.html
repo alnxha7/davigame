@@ -92,6 +92,7 @@
 	<section class="games-section">
 		<div class="container">
 			<div class="row">
+				<h2 style="color: white;">Total Revenue: {{revenue}} RS</h2>
                 <table class="table table-bordered table-hover" data-aos="fade-up" data-aos-delay="100">
                     <thead class="table-dark">
                       <tr>
@@ -99,7 +100,7 @@
                         <th>Mobile</th>
                         <th>Amount</th>
                         <th>Davitokens</th>
-                        <th>Card Number</th>
+                        <th>Transaction ID</th>
                         <th>Date</th>
                       </tr>
                     </thead>
@@ -110,7 +111,7 @@
                           <td>{{ record.user.mobile }}</td>
                           <td> {{ record.amount }} ₹</td>
                           <td> {{ record.davitokens }} <i class="fa fa-bitcoin"></i> </td>
-                          <td> {{ record.card_number }} </td>
+                          <td> {{ record.transaction_id }} </td>
                           <td> {{ record.date }} </td>
                       </tr>
                       {% endfor %}

@@ -3,7 +3,7 @@ from .models import User, Davitokens, DaviPayment, Wallet, DaviConvertion
 from django.contrib.auth import login, logout
 from django.contrib.auth.hashers import check_password, make_password
 from datetime import datetime
-        
+import stripe
 
 def home(request):
     return render(request, 'index.html')
@@ -71,8 +71,7 @@ def manage_users(request):
             return redirect('manage_users')
         elif action == 'remove':
             user = User.objects.get(id=user_id)
-            user.is_approved = False
-            user.save()
+            user.delete()
             return redirect('manage_users')
         
     users = User.objects.filter(is_approved=False, is_superuser=False)
@@ -115,32 +114,89 @@ def purchase_davis(request):
 
 def davi_payment(request, token_id):
     token = get_object_or_404(Davitokens, id=token_id)
-    if request.method == 'POST':
-        card_number = request.POST.get('card_number')
-        cvv = request.POST.get('cvv')
-        user = request.user
-        amount = token.amount
-        davitokens = token.davitokens
-        date = datetime.today()
+    stripe.api_key = 'sk_test_51QiEXDSHJUM6Nx6pBmX76nEImbWj6aHF2Qm2XxqNsCBKXAkX11hEeDJ9JNTmJO9EX0zL117XZXV1or15m7J6qRpw006vmXlQYd'
 
-        DaviPayment.objects.create(user=user, 
-                                   amount=amount,
-                                   davitokens=davitokens,
-                                   card_number=card_number, 
-                                   cvv=cvv,
-                                   date=date)
-        user_davi = User.objects.get(email=user.email)
-        user_davi.davitokens = user_davi.davitokens + davitokens
-        user_davi.save()
-        return redirect('success')
-    return render(request, 'davi_payment.html', {'token': token})
+    # Check if the request includes a Stripe session ID to verify payment status
+    session_id = request.GET.get('session_id')
+
+    if session_id:
+        # Retrieve the session details from Stripe
+        try:
+            session = stripe.checkout.Session.retrieve(session_id)
+            print(session.payment_status)
+
+            if session.payment_status == 'paid':
+                # Payment succeeded, perform actions
+                user = request.user
+                amount = token.amount
+                davitokens = token.davitokens
+                date = datetime.today()
+
+                # Save payment details
+                DaviPayment.objects.create(
+                    user=user,
+                    amount=amount,
+                    davitokens=davitokens,
+                    transaction_id=session['id'],
+                    date=date,
+                )
+
+                # Update user's Davitokens
+                user_davi = User.objects.get(email=user.email)
+                user_davi.davitokens += davitokens
+                user_davi.save()
+
+                return render(request, 'success.html', {'message': 'Payment successful!'})
+
+            else:
+                # Payment failed
+                return render(request, 'error.html', {'error': 'Payment not completed.'})
+
+        except stripe.error.StripeError as e:
+            print(f"Stripe Error: {e}")
+            return render(request, 'error.html', {'error': 'An error occurred while verifying payment.'})
+
+    else:
+        # Create a Stripe Checkout Session
+        try:
+            success_url = f"{request.scheme}://{request.get_host()}{request.path}?session_id={{CHECKOUT_SESSION_ID}}"
+            cancel_url = f"{request.scheme}://{request.get_host()}/cancel"
+
+            session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=[{
+                    'price_data': {
+                        'currency': 'inr',
+                        'product_data': {
+                            'name': 'Davitokens Purchase',
+                        },
+                        'unit_amount': token.amount * 100,  # Amount in paise
+                    },
+                    'quantity': 1,
+                }],
+                mode='payment',
+                success_url=success_url,
+                cancel_url=cancel_url,
+                billing_address_collection='required',
+            )
+
+            # Redirect to Stripe Checkout
+            return redirect(session.url)
+
+        except Exception as e:
+            print(f"Stripe Error: {e}")
+            return render(request, 'error.html', {'error': 'Unable to create a payment session.'})
+
+
+
 
 def success(request):
     return render(request, 'success.html')
 
 def davipayment_record(request):
     records = DaviPayment.objects.all()
-    return render(request, 'davipayment_record.html', {'records': records})
+    revenue = sum(transaction.amount for transaction in DaviPayment.objects.all())
+    return render(request, 'davipayment_record.html', {'records': records, 'revenue': revenue})
 
 def simon_game(request):
     email = request.user.email
@@ -204,7 +260,7 @@ def user_wallet(request):
         if user.davitokens < davitokens:
             return render(request, 'user_wallet.html', {'error': 'Not Enogh Davitokens', 'conversions': conversions})
 
-        conv = get_object_or_404(DaviConvertion, davitokens=user.davitokens)
+        conv = get_object_or_404(DaviConvertion, davitokens=davitokens)
         amount = conv.amount
         
         try:
@@ -231,3 +287,7 @@ def delete_conversion(request, conv_id):
 def wallet_transfer(request):
     records = Wallet.objects.all()
     return render(request, 'wallet_transfer.html', {'records': records})
+
+def cancel(request):
+    return render(request, 'cancel.html')
+
