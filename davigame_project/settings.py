@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-(5_ked+z(n0ue=$6r58gvgr#^m@(9!1d_4twirjxe)3f8^^q$w
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['davigame.onrender.com']
 
 
 # Application definition
