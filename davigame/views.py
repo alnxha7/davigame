@@ -114,7 +114,7 @@ def purchase_davis(request):
 
 def davi_payment(request, token_id):
     token = get_object_or_404(Davitokens, id=token_id)
-    stripe.api_key = 'sk_test_51QiEXDSHJUM6Nx6pBmX76nEImbWj6aHF2Qm2XxqNsCBKXAkX11hEeDJ9JNTmJO9EX0zL117XZXV1or15m7J6qRpw006vmXlQYd'
+    stripe.api_key = 'sk_test_51Qq5lDSIlf9ctLPP4As9xtAonS2qFRneLHoZ750gjJ6u57Gp6fRrOip73Y7mr2qX1qZfNo3qE3xRiJUMQj7wwz5g00nEKvfKko'
 
     # Check if the request includes a Stripe session ID to verify payment status
     session_id = request.GET.get('session_id')
